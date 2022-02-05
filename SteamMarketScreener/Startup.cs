@@ -1,16 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using FluentMigrator.Runner;
+using System.Reflection;
+using SteamMarketDAL.Migrations;
 
 namespace SteamMarketScreener
 {
@@ -26,6 +22,12 @@ namespace SteamMarketScreener
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services
+                .AddFluentMigratorCore()
+                .ConfigureRunner(c => c
+                    .AddSqlServer()
+                    .WithGlobalConnectionString("SteamMarketScreenerDatabase")
+                    .ScanIn(Assembly.GetAssembly(typeof(InitialMigration))));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -37,6 +39,8 @@ namespace SteamMarketScreener
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.Migrate();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
