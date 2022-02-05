@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using FluentMigrator.Runner;
 using System.Reflection;
 using SteamMarketDAL.Migrations;
+using SteamMarketDAL;
 
 namespace SteamMarketScreener
 {
@@ -29,6 +30,7 @@ namespace SteamMarketScreener
                     .WithGlobalConnectionString("SteamMarketScreenerDatabase")
                     .ScanIn(Assembly.GetAssembly(typeof(InitialMigration))));
 
+            services.AddSteamMarketRepositories(Configuration.GetConnectionString("SteamMarketScreenerDatabase"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
